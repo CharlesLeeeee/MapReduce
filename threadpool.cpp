@@ -56,7 +56,7 @@ void * Thread_run(ThreadPool_t *tp){
         pthread_mutex_lock(&mutex);
         // if(!tp->tasks->works.empty()){ 
             ThreadPool_work_t * work = ThreadPool_get_work(tp);
-            pthread_mutex_unlock(&mutex);
+            // pthread_mutex_unlock(&mutex);
             if(work){
                 work->func(work->arg);
                 delete work;
@@ -68,7 +68,7 @@ void * Thread_run(ThreadPool_t *tp){
             // pthread_mutex_unlock(&mutex);
         //     pthread_exit(0);
         // }
-        // pthread_mutex_lock(&mutex);
+        pthread_mutex_lock(&mutex);
     }
     pthread_exit(0);
 }

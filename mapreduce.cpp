@@ -30,7 +30,7 @@ void MR_Run(int num_files, char *filenames[],
     std::sort(sorted_files.begin(),sorted_files.end());
     ThreadPool_t * tp = ThreadPool_create(num_mappers);
     tp->work_needed = num_files;
-    for(int i=0;i<num_files;i++){
+    for(int i=0;i<sorted_files.size();i++){
         ThreadPool_add_work(tp,(thread_func_t)map, sorted_files[i].second);
     }
     for(int i=0;i<num_mappers;i++){
