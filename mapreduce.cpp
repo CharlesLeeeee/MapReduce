@@ -4,6 +4,7 @@
 #include <bits/stdc++.h>
 #include <map> 
 #include <iostream>
+#include <unistd.h>
 #include <sys/stat.h>
 
 std::map<std::string,std::vector<std::string> > * partitions;
@@ -20,9 +21,11 @@ void MR_Run(int num_files, char *filenames[],
 
     std::vector<std::pair<off_t,char*> > sorted_files;
     for(int i=0;i<num_files;i++){
-        struct stat buf;
-        stat(filenames[i],&buf);
-        sorted_files.push_back(std::make_pair(buf.st_size,filenames[i]));
+        if(access(filenames[i],F_OK)==0){
+            struct stat buf;
+            stat(filenames[i],&buf);
+            sorted_files.push_back(std::make_pair(buf.st_size,filenames[i]));
+        }
     }
     std::sort(sorted_files.begin(),sorted_files.end());
     ThreadPool_t * tp = ThreadPool_create(num_mappers);
