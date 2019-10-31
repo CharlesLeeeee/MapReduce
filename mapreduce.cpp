@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sys/stat.h>
 
-std::map<std::string,std::vector<std::string>> * partitions;
+std::map<std::string,std::vector<std::string> > * partitions;
 std::map<std::string,std::vector<std::string>::iterator> * iterators;
 pthread_mutex_t * mutex_partition; 
 int partition_size;
@@ -17,7 +17,8 @@ pthread_mutex_t main_mutex = PTHREAD_MUTEX_INITIALIZER;
 void MR_Run(int num_files, char *filenames[],
             Mapper map, int num_mappers,
             Reducer concate, int num_reducers){
-    std::vector<std::pair<off_t,char*>> sorted_files;
+
+    std::vector<std::pair<off_t,char*> > sorted_files;
     for(int i=0;i<num_files;i++){
         struct stat buf;
         stat(filenames[i],&buf);
@@ -36,7 +37,7 @@ void MR_Run(int num_files, char *filenames[],
 
 
 
-    partitions = new std::map<std::string,std::vector<std::string>> [num_reducers];
+    partitions = new std::map<std::string,std::vector<std::string> > [num_reducers];
     iterators = new std::map<std::string,std::vector<std::string>::iterator> [num_reducers];
     mutex_partition = new pthread_mutex_t [num_reducers];
     partition_size = num_reducers;
@@ -86,7 +87,7 @@ unsigned long MR_Partition(char *key, int num_partitions){
 }
 
 void MR_ProcessPartition(int partition_number){
-    std::map<std::string,std::vector<std::string>>::iterator it;
+    std::map<std::string,std::vector<std::string> >::iterator it;
     if(!partitions[partition_number].empty()){
         for(it=partitions[partition_number].begin();it!=partitions[partition_number].end();it++){
             iterators[partition_number][it->first] = partitions[partition_number][it->first].begin();
