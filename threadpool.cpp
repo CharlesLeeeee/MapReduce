@@ -18,9 +18,9 @@ ThreadPool_t *ThreadPool_create(int num){
 }
 
 void ThreadPool_destroy(ThreadPool_t *tp){
-    pthread_mutex_lock(&mutex);
-    pthread_cond_wait(&cond_finish_work,&mutex);
-    pthread_mutex_unlock(&mutex);
+    // pthread_mutex_lock(&mutex);
+    // pthread_cond_wait(&cond_finish_work,&mutex);
+    // pthread_mutex_unlock(&mutex);
     for(size_t i=0;i<tp->threads.size();i++){
         pthread_join(*tp->threads[i],NULL);
         delete tp->threads[i];
