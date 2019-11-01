@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sys/stat.h>
 
-std::map<std::string,std::queue<std::string>> * partitions;
+std::map<std::string,std::queue<std::string> > * partitions;
 int partition_size;
 pthread_mutex_t * partition_mutex; 
 Reducer reducer;
@@ -21,10 +21,10 @@ void MR_Run(int num_files, char *filenames[],
             Mapper map, int num_mappers,
             Reducer concate, int num_reducers){
 
-    partitions = new std::map<std::string,std::queue<std::string>> [num_reducers];
+    partitions = new std::map<std::string,std::queue<std::string> > [num_reducers];
     partition_mutex = new pthread_mutex_t [num_reducers];
     partition_size = num_reducers;
-    std::vector<std::pair<off_t,char*>> sorted_files;
+    std::vector<std::pair<off_t,char*> > sorted_files;
     for(int i=0;i<num_files;i++){
         struct stat buf;
         stat(filenames[i],&buf);
