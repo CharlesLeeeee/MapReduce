@@ -8,7 +8,7 @@
 
 std::map<std::string,std::queue<std::string>> * partitions;
 int partition_size;
-pthread_mutex_t * mutex2; 
+pthread_mutex_t * partition_mutex; 
 Reducer reducer;
 
 void * paritionProcessor(void * arg){
@@ -22,7 +22,7 @@ void MR_Run(int num_files, char *filenames[],
             Reducer concate, int num_reducers){
 
     partitions = new std::map<std::string,std::queue<std::string>> [num_reducers];
-    mutex2 = new pthread_mutex_t [num_reducers];
+    partition_mutex = new pthread_mutex_t [num_reducers];
     partition_size = num_reducers;
     std::vector<std::pair<off_t,char*>> sorted_files;
     for(int i=0;i<num_files;i++){
@@ -53,14 +53,14 @@ void MR_Run(int num_files, char *filenames[],
         pthread_join(reducer_threads[i],NULL);
     }
     delete [] partitions;
-    delete [] mutex2;
+    delete [] partition_mutex;
 }
 
 void MR_Emit(char *key, char *value){
     unsigned long assigned_part = MR_Partition(key,partition_size);
-    pthread_mutex_lock(&mutex2[assigned_part]);
+    pthread_mutex_lock(&partition_mutex[assigned_part]);
     partitions[assigned_part][std::string(key)].push(std::string(value));
-    pthread_mutex_unlock(&mutex2[assigned_part]);
+    pthread_mutex_unlock(&partition_mutex[assigned_part]);
 }
 
 

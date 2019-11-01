@@ -1,9 +1,6 @@
 #include "threadpool.h"
 #include <iostream>
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t get_cond =  PTHREAD_COND_INITIALIZER;
-bool getting = false; 
 
 
 ThreadPool_t *ThreadPool_create(int num){
@@ -38,26 +35,26 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
 
 ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
     if(!tp->tasks->works.empty()){
-        getting = true; 
+        tp->getting = true; 
         ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
         tp->num_tasks--;
-        getting = false;
-        pthread_cond_signal(&get_cond);
+        tp->getting = false;
+        pthread_cond_signal(&tp->get_cond);
         return work;
     }
-    pthread_cond_broadcast(&get_cond);
+    pthread_cond_broadcast(&tp->get_cond);
     return NULL;
 }
 
 void * Thread_run(ThreadPool_t *tp){
     while(tp->num_tasks){
-        pthread_mutex_lock(&mutex);
-        while(getting){
-            pthread_cond_wait(&get_cond,&mutex);
+        pthread_mutex_lock(&tp->mutex);
+        while(tp->getting){
+            pthread_cond_wait(&tp->get_cond,&tp->mutex);
         }
         ThreadPool_work_t * work = ThreadPool_get_work(tp);
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&tp->mutex);
         if(work){
             work->func(work->arg);
             delete work;
