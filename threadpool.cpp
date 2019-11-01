@@ -3,7 +3,7 @@
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t get_cond =  PTHREAD_COND_INITIALIZER;
-bool waiting = false; 
+bool getting = false; 
 
 
 ThreadPool_t *ThreadPool_create(int num){
@@ -38,24 +38,25 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
 
 ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
     if(!tp->tasks->works.empty()){
-        waiting = true; 
+        getting = true; 
         ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
         tp->num_tasks--;
-        waiting = false;
+        getting = false;
         pthread_cond_signal(&get_cond);
         return work;
     }
+    pthread_cond_broadcast(&get_cond);
     return NULL;
 }
 
 void * Thread_run(ThreadPool_t *tp){
     while(tp->num_tasks){
         pthread_mutex_lock(&mutex);
-            while(waiting){
-                pthread_cond_wait(&get_cond,&mutex);
-            }
-            ThreadPool_work_t * work = ThreadPool_get_work(tp);
+        while(getting){
+            pthread_cond_wait(&get_cond,&mutex);
+        }
+        ThreadPool_work_t * work = ThreadPool_get_work(tp);
         pthread_mutex_unlock(&mutex);
         if(work){
             work->func(work->arg);
