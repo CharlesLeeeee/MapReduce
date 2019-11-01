@@ -40,7 +40,7 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
         ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
         tp->num_tasks--;
-        tp->getting = false;
+        // tp->getting = false;
         pthread_cond_signal(&tp->get_cond);
         return work;
     }
@@ -51,9 +51,9 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
 void * Thread_run(ThreadPool_t *tp){
     while(tp->num_tasks){
         pthread_mutex_lock(&tp->mutex);
-        while(tp->getting){
-            pthread_cond_wait(&tp->get_cond,&tp->mutex);
-        }
+        // while(tp->getting){
+        pthread_cond_wait(&tp->get_cond,&tp->mutex);
+        // }
         ThreadPool_work_t * work = ThreadPool_get_work(tp);
         pthread_mutex_unlock(&tp->mutex);
         if(work){
