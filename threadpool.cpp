@@ -14,7 +14,6 @@ ThreadPool_t *ThreadPool_create(int num){
 }
 
 void ThreadPool_destroy(ThreadPool_t *tp){
-
     for(size_t i=0;i<tp->threads.size();i++){
         pthread_join(*tp->threads[i],NULL);
         delete tp->threads[i];
@@ -43,16 +42,14 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
 void * Thread_run(ThreadPool_t *tp){
     while(true){
         pthread_mutex_lock(&mutex);
-        if(!tp->tasks->works.empty()){ 
-            ThreadPool_work_t * work = ThreadPool_get_work(tp);
-            pthread_mutex_unlock(&mutex);
+        ThreadPool_work_t * work = ThreadPool_get_work(tp);
+        pthread_mutex_unlock(&mutex);
+        if(work){
             work->func(work->arg);
             delete work;
         }
         else{
-            pthread_mutex_unlock(&mutex);
             pthread_exit(0);
         }
-        // pthread_mutex_unlock(&mutex);
     }
 }
