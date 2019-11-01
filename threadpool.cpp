@@ -6,6 +6,7 @@
 ThreadPool_t *ThreadPool_create(int num){
     ThreadPool_t * tp = new ThreadPool_t;
     tp->tasks = new ThreadPool_work_queue_t;
+    tp->num_threadsworking = 0;
     for(int i=0;i<num;i++){
         pthread_t * thread = new pthread_t;
         tp->threads.push_back(thread);
