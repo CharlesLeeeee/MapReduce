@@ -27,6 +27,9 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
     work->func = func;
     work->arg = arg;
     tp->tasks->works.push(work);
+    if(tp->num_threadsworking < tp->threads.size()){
+        pthread_create(tp->threads[tp->num_threadsworking++],NULL,(void *(*)(void*))(Thread_run),tp);
+    }
     return true;
 }
 
@@ -34,13 +37,14 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
     if(!tp->tasks->works.empty()){ 
         ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
+        tp->num_tasks--;
         return work;
     }
     return NULL;
 }
 
 void * Thread_run(ThreadPool_t *tp){
-    while(true){
+    while(tp->num_tasks){
         pthread_mutex_lock(&mutex);
         ThreadPool_work_t * work = ThreadPool_get_work(tp);
         pthread_mutex_unlock(&mutex);
@@ -48,8 +52,6 @@ void * Thread_run(ThreadPool_t *tp){
             work->func(work->arg);
             delete work;
         }
-        else{
-            pthread_exit(0);
-        }
     }
+    pthread_exit(0);
 }

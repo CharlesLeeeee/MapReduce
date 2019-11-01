@@ -35,11 +35,9 @@ void MR_Run(int num_files, char *filenames[],
 
 
     ThreadPool_t * tp = ThreadPool_create(num_mappers);
+    tp->num_tasks = num_files;
     for(int i=0;i<num_files;i++){
         ThreadPool_add_work(tp,(thread_func_t)map, sorted_files[i].second);
-    }
-    for(int i=0;i<num_mappers;i++){
-        pthread_create(tp->threads[i],NULL,(void *(*)(void*))(Thread_run),tp);
     }
     ThreadPool_destroy(tp);
 

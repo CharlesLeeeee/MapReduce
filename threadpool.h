@@ -19,6 +19,8 @@ typedef struct {
 } ThreadPool_work_queue_t;
 
 typedef struct {
+    int num_threadsworking = 0;
+    int num_tasks;
     std::vector<pthread_t*> threads;
     ThreadPool_work_queue_t * tasks;
 } ThreadPool_t;
