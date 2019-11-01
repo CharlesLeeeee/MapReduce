@@ -1,4 +1,4 @@
-CC:=gcc
+CC:=g++
 WARN:=-Wall 
 LIB:=-lm -pthread -O3
 CCOPTS:=-std=c99 -ggdb -D_GNU_SOURCE

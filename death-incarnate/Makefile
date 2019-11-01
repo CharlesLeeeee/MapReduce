@@ -1,4 +1,4 @@
-CC:=gcc
+CC:=g++
 WARN:=-Wall 
 LIB:=-lm -pthread -O3
 CCOPTS:=-std=c99 -ggdb -D_GNU_SOURCE
@@ -18,6 +18,6 @@ clean-all:
 	rm -rf result-*.txt
 	rm -rf validation
 
-threadpool.o: ../threadpool.c ../threadpool.h
-distwc.o: distwc.c ../mapreduce.h
-mapreduce.o: ../mapreduce.c ../mapreduce.h ../threadpool.h
+threadpool.o: ../threadpool.cpp ../threadpool.h
+distwc.o: distwc.cpp ../mapreduce.h
+mapreduce.o: ../mapreduce.cpp ../mapreduce.h ../threadpool.h

@@ -20,7 +20,6 @@ typedef struct {
 
 typedef struct {
     std::vector<pthread_t*> threads;
-    int work_needed = 0;
     ThreadPool_work_queue_t * tasks;
 } ThreadPool_t;
 
