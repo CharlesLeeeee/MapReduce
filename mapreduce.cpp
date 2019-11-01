@@ -63,6 +63,10 @@ void MR_Emit(char *key, char *value){
     pthread_mutex_unlock(&mutex2[assigned_part]);
 }
 
+
+/*
+* From the assignment 2 sheet
+*/
 unsigned long MR_Partition(char *key, int num_partitions){
     unsigned long hash = 5381;
     int c;

@@ -1,12 +1,15 @@
 #include "threadpool.h"
 #include <iostream>
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t get_cond =  PTHREAD_COND_INITIALIZER;
+bool waiting = false; 
+
 
 ThreadPool_t *ThreadPool_create(int num){
     ThreadPool_t * tp = new ThreadPool_t;
     tp->tasks = new ThreadPool_work_queue_t;
-    for(size_t i=0;i<num;i++){
+    for(int i=0;i<num;i++){
         pthread_t * thread = new pthread_t;
         tp->threads.push_back(thread);
     }
@@ -27,17 +30,20 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
     work->func = func;
     work->arg = arg;
     tp->tasks->works.push(work);
-    if(tp->num_threadsworking < tp->threads.size()){
+    if(tp->num_threadsworking < (int)tp->threads.size()){
         pthread_create(tp->threads[tp->num_threadsworking++],NULL,(void *(*)(void*))(Thread_run),tp);
     }
     return true;
 }
 
 ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
-    if(!tp->tasks->works.empty()){ 
+    if(!tp->tasks->works.empty()){
+        waiting = true; 
         ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
         tp->num_tasks--;
+        waiting = false;
+        pthread_cond_signal(&get_cond);
         return work;
     }
     return NULL;
@@ -46,7 +52,10 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
 void * Thread_run(ThreadPool_t *tp){
     while(tp->num_tasks){
         pthread_mutex_lock(&mutex);
-        ThreadPool_work_t * work = ThreadPool_get_work(tp);
+            while(waiting){
+                pthread_cond_wait(&get_cond,&mutex);
+            }
+            ThreadPool_work_t * work = ThreadPool_get_work(tp);
         pthread_mutex_unlock(&mutex);
         if(work){
             work->func(work->arg);
