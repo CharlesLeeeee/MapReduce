@@ -36,10 +36,13 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
     while(tp->tasks->works.empty() && tp->num_tasks > 0){
         pthread_cond_wait(&tp->get_cond,&tp->mutex);
     }
-    ThreadPool_work_t * work = tp->tasks->works.front();
-    tp->tasks->works.pop();
-    tp->num_tasks--;
-    return work;
+    if(!tp->tasks->works.empty()){
+        ThreadPool_work_t * work = tp->tasks->works.front();
+        tp->tasks->works.pop();
+        tp->num_tasks--;
+        return work;
+    }
+    return NULL;
 }
 
 void * Thread_run(ThreadPool_t *tp){
