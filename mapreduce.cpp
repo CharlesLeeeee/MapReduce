@@ -1,11 +1,12 @@
 #include "mapreduce.h"
+#include <unordered_map>
 #include <utility>
 #include <bits/stdc++.h>
 #include <map> 
 #include <iostream>
 #include <sys/stat.h>
 
-std::map<std::string,std::queue<std::string> > * partitions;
+std::map<std::string,std::queue<std::string>> * partitions;
 int partition_size;
 pthread_mutex_t * partition_mutex; 
 Reducer reducer;
@@ -20,10 +21,10 @@ void MR_Run(int num_files, char *filenames[],
             Mapper map, int num_mappers,
             Reducer concate, int num_reducers){
 
-    partitions = new std::map<std::string,std::queue<std::string> > [num_reducers];
+    partitions = new std::map<std::string,std::queue<std::string>> [num_reducers];
     partition_mutex = new pthread_mutex_t [num_reducers];
     partition_size = num_reducers;
-    std::vector<std::pair<off_t,char*> > sorted_files;
+    std::vector<std::pair<off_t,char*>> sorted_files;
     for(int i=0;i<num_files;i++){
         struct stat buf;
         stat(filenames[i],&buf);
@@ -76,7 +77,7 @@ unsigned long MR_Partition(char *key, int num_partitions){
 }
 
 void MR_ProcessPartition(int partition_number){
-    std::map<std::string,std::queue<std::string> >::iterator it;
+    std::map<std::string,std::queue<std::string>>::iterator it;
     if(!partitions[partition_number].empty()){
         for(it=partitions[partition_number].begin();it!=partitions[partition_number].end();it++){
             reducer((char *)it->first.c_str(),partition_number);
