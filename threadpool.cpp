@@ -6,10 +6,10 @@
 ThreadPool_t *ThreadPool_create(int num){
     ThreadPool_t * tp = new ThreadPool_t;
     tp->tasks = new ThreadPool_work_queue_t;
-    tp->num_threadsworking = 0;
     for(int i=0;i<num;i++){
         pthread_t * thread = new pthread_t;
         tp->threads.push_back(thread);
+        pthread_create(tp->threads[i],NULL,(void *(*)(void*))(Thread_run),tp);
     }
     return tp;
 }
@@ -29,9 +29,6 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
     work->arg = arg;
     tp->tasks->works.push(work);
     pthread_cond_signal(&tp->get_cond);
-    if(tp->num_threadsworking < (int)tp->threads.size()){
-        pthread_create(tp->threads[tp->num_threadsworking++],NULL,(void *(*)(void*))(Thread_run),tp);
-    }
     return true;
 }
 
