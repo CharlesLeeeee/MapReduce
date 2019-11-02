@@ -21,8 +21,6 @@ typedef struct {
 typedef struct {
     int num_tasks;
     pthread_cond_t get_cond = PTHREAD_COND_INITIALIZER;
-    pthread_cond_t kill_cond = PTHREAD_COND_INITIALIZER;
-    pthread_mutex_t kill_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     std::vector<pthread_t*> threads;
     ThreadPool_work_queue_t * tasks;

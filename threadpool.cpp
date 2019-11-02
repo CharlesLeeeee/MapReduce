@@ -20,6 +20,7 @@ void ThreadPool_destroy(ThreadPool_t *tp){
         delete tp->threads[i];
     }
     tp->threads.clear();
+    delete tp->tasks;
     delete tp;
 }
 
