@@ -15,11 +15,8 @@ ThreadPool_t *ThreadPool_create(int num){
 }
 
 void ThreadPool_destroy(ThreadPool_t *tp){
-    pthread_mutex_lock(&tp->kill_mutex);
-    pthread_cond_wait(&tp->kill_cond,&tp->kill_mutex);
-    pthread_mutex_unlock(&tp->kill_mutex);
     for(size_t i=0;i<tp->threads.size();i++){
-        pthread_cancel(*tp->threads[i]);
+        pthread_join(*tp->threads[i],NULL);
         delete tp->threads[i];
     }
     tp->threads.clear();
@@ -35,13 +32,13 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
 }
 
 ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
-    while(tp->tasks->works.empty()){
-        pthread_cond_wait(&tp->get_cond,&tp->mutex);
+    if(!tp->tasks->works.empty()){
+        ThreadPool_work_t * work = tp->tasks->works.front();
+        tp->tasks->works.pop();
+        tp->num_tasks--;
+        return work;
     }
-    ThreadPool_work_t * work = tp->tasks->works.front();
-    tp->tasks->works.pop();
-    tp->num_tasks--;
-    return work;
+    return NULL;
 }
 
 void * Thread_run(ThreadPool_t *tp){
@@ -49,9 +46,10 @@ void * Thread_run(ThreadPool_t *tp){
         pthread_mutex_lock(&tp->mutex);
         ThreadPool_work_t * work = ThreadPool_get_work(tp);
         pthread_mutex_unlock(&tp->mutex);
-        work->func(work->arg);
-        delete work;
+        if(work){
+            work->func(work->arg);
+            delete work;
+        }
     }
-    pthread_cond_signal(&tp->kill_cond);
     pthread_exit(0);
 }
