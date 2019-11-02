@@ -41,8 +41,8 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
     ThreadPool_work_t * work = tp->tasks->works.front();
     if(work){
         tp->tasks->works.pop();
-        pthread_mutex_unlock(&tp->mutex);
         tp->num_tasks--;
+        pthread_mutex_unlock(&tp->mutex);
         return work;
     }
     pthread_mutex_unlock(&tp->mutex);
