@@ -76,7 +76,7 @@ unsigned long MR_Partition(char *key, int num_partitions){
 }
 
 void MR_ProcessPartition(int partition_number){
-    std::map<std::string,std::queue<std::string>>::iterator it;
+    std::map<std::string,std::queue<std::string> >::iterator it;
     if(!partitions[partition_number].empty()){
         for(it=partitions[partition_number].begin();it!=partitions[partition_number].end();it++){
             reducer((char *)it->first.c_str(),partition_number);
