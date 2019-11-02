@@ -29,6 +29,7 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
     work->func = func;
     work->arg = arg;
     tp->tasks->works.push(work);
+    pthread_cond_signal(&tp->get_cond);
     return true;
 }
 
