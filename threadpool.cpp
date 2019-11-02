@@ -34,23 +34,24 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
 }
 
 ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
-    while(tp->tasks->works.empty() && tp->num_tasks > 0){
+    pthread_mutex_lock(&tp->mutex);
+    if(tp->tasks->works.empty()){
         pthread_cond_wait(&tp->get_cond,&tp->mutex);
     }
     ThreadPool_work_t * work = tp->tasks->works.front();
     if(work){
         tp->tasks->works.pop();
+        pthread_mutex_unlock(&tp->mutex);
         tp->num_tasks--;
         return work;
     }
+    pthread_mutex_unlock(&tp->mutex);
     return NULL;
 }
 
 void * Thread_run(ThreadPool_t *tp){
     while(tp->num_tasks > 0){
-        pthread_mutex_lock(&tp->mutex);
         ThreadPool_work_t * work = ThreadPool_get_work(tp);
-        pthread_mutex_unlock(&tp->mutex);
         if(work){
             work->func(work->arg);
             delete work;
