@@ -37,8 +37,8 @@ ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
     if(tp->tasks->works.empty()){
         pthread_cond_wait(&tp->get_cond,&tp->mutex);
     }
-    ThreadPool_work_t * work = tp->tasks->works.front();
-    if(work){
+    if(!tp->tasks->works.empty()){
+        ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
         tp->num_tasks--;
         return work;
