@@ -19,11 +19,8 @@ typedef struct {
 } ThreadPool_work_queue_t;
 
 typedef struct {
-    int num_threadsworking = 0;
     int num_tasks;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t get_cond =  PTHREAD_COND_INITIALIZER;
-    bool getting = false;
     std::vector<pthread_t*> threads;
     ThreadPool_work_queue_t * tasks;
 } ThreadPool_t;
