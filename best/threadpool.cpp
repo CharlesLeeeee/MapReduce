@@ -20,6 +20,7 @@ void ThreadPool_destroy(ThreadPool_t *tp){
         delete tp->threads[i];
     }
     tp->threads.clear();
+    delete tp->tasks;
     delete tp;
 }
 
@@ -28,10 +29,14 @@ bool ThreadPool_add_work(ThreadPool_t *tp, thread_func_t func, void *arg){
     work->func = func;
     work->arg = arg;
     tp->tasks->works.push(work);
+    pthread_cond_signal(&tp->get_cond);
     return true;
 }
 
 ThreadPool_work_t *ThreadPool_get_work(ThreadPool_t *tp){
+    if(tp->tasks->works.empty()){
+        pthread_cond_wait(&tp->get_cond,&tp->mutex);
+    }
     if(!tp->tasks->works.empty()){
         ThreadPool_work_t * work = tp->tasks->works.front();
         tp->tasks->works.pop();
@@ -51,5 +56,6 @@ void * Thread_run(ThreadPool_t *tp){
             delete work;
         }
     }
+    pthread_cond_broadcast(&tp->get_cond);
     pthread_exit(0);
 }
